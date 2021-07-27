@@ -1,20 +1,19 @@
-package com.example.orm.bean;
+package com.example.mydao.bean;
 
-import com.example.orm.annotation.IntegerDefault;
-import com.example.orm.annotation.Key;
-import com.example.orm.annotation.Nullable;
-import com.example.orm.annotation.StringDefault;
-import com.example.orm.annotation.Table;
+
+import com.example.mydao.annotation.Key;
+import com.example.mydao.annotation.Nullable;
+import com.example.mydao.annotation.Default;
+import com.example.mydao.annotation.Table;
 
 @Table(tableName = "test")
 public class Result {
     @Key
-    @Nullable(nullable = false)
-    @IntegerDefault(def = 0)
+    @Default(IntegerDef = 0)
     private Integer code;
 
-    @Nullable(nullable = false)
-    @StringDefault(def = "")
+    @Nullable
+    @Default(stringDef = "test")
     private String message;
 
     public Integer getCode() {

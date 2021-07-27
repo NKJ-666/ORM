@@ -1,4 +1,4 @@
-package com.example.orm.exception;
+package com.example.mydao.exception;
 
 public class NotMainKeyException extends Exception{
     private String message;

@@ -1,4 +1,4 @@
-package com.example.orm.exception;
+package com.example.mydao.exception;
 
 public class EmptyFieldException extends Exception{
     private String message;

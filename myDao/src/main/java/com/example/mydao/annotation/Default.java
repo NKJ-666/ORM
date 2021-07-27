@@ -1,4 +1,4 @@
-package com.example.orm.annotation;
+package com.example.mydao.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -9,6 +9,8 @@ import java.lang.annotation.Target;
 @Documented
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Key {
-    boolean auto() default true;
+public @interface Default {
+    String stringDef() default "";
+    int IntegerDef() default 0;
+    boolean booleanDef() default false;
 }
