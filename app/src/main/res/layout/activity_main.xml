@@ -61,4 +61,10 @@
         android:layout_height="wrap_content"
         android:text="select value"/>
 
+    <Button
+        android:id="@+id/update_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="update value"/>
+
 </LinearLayout>

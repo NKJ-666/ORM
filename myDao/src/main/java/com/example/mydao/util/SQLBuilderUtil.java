@@ -176,14 +176,17 @@ public class SQLBuilderUtil {
     public synchronized static <T> void deleteFromInstance(T instance, SQLiteDatabase sd) throws IllegalAccessException, InvocationTargetException {
         StringBuilder builder = new StringBuilder();
         Field [] fields = instance.getClass().getDeclaredFields();
-        String [] names = getAllFieldName(fields);
+        String [] names = TableUtil.getAllFieldName(fields);
         String [] compareValues = new String[names.length];
         Method [] methods = instance.getClass().getDeclaredMethods();
         for(int i = 0; i < names.length; i++){
             builder.append(names[i] + " = ? and ");
             for(Method method : methods){
                 if(method.getName().startsWith("get") && method.getName().endsWith(names[i].substring(1))){
-                    compareValues[i] = Objects.requireNonNull(method.invoke(instance)).toString();
+                    Object obj = method.invoke(instance);
+                    if(obj != null){
+                        compareValues[i] = obj.toString();
+                    }
                     break;
                 }
             }
@@ -210,47 +213,21 @@ public class SQLBuilderUtil {
         if(builder.charAt(builder.length()-1) == ','){
             builder.deleteCharAt(builder.length()-1);
         }
-        return query(clazz,builder.toString(),selectionArgs,sd);
+        return TableUtil.query(clazz,builder.toString(),selectionArgs,sd);
     }
 
-    private static String [] getAllFieldName(Field [] fields){
-        String [] names = new String[fields.length];
-        int flag = 0;
-        for(Field field : fields){
-            names[flag] = field.getName();
-            flag++;
+    public synchronized static <T,K> void updateFromInstance(T instance, String[] columnNames, SelectFlag[] flag, K[] compareValues, SQLiteDatabase sd) throws IllegalAccessException, GetMethodException, InvocationTargetException {
+        StringBuilder builder = new StringBuilder();
+        String [] selectionArgs = new String[columnNames.length];
+        for(int i = 0; i < columnNames.length; i++){
+            builder.append(columnNames[i] + " " + getFlag(flag[i]) + " ? ,");
+            selectionArgs[i] = compareValues[i].toString();
         }
-        return names;
-    }
-
-    private static <T> List<T> query(Class<T> clazz, String selection, String [] selectionArgs, SQLiteDatabase sd) throws InstantiationException, IllegalAccessException, InvocationTargetException {
-        List<T> list = new ArrayList<>();
-        Cursor cursor = sd.query(TableUtil.getTableName(clazz),null,selection, selectionArgs,null,null,null);
-        if(cursor.moveToFirst()){
-            do{
-                T t = clazz.newInstance();
-                Method[] methods = clazz.getDeclaredMethods();
-                for(Method method : methods){
-                    if(method.getName().startsWith("set")){
-                        Class[] columnTypes = method.getParameterTypes();
-                        String name = method.getName().toLowerCase().substring(3);
-                        if(columnTypes.length > 1)
-                            continue;
-                        String [] totalType = columnTypes[0].toString().split("\\.");
-                        String type = totalType[totalType.length-1];
-                        if(type.equalsIgnoreCase("Integer") || type.equalsIgnoreCase("int")){
-                            method.invoke(t, cursor.getInt(cursor.getColumnIndex(name)));
-                        }else if(type.equalsIgnoreCase("String")){
-                            method.invoke(t, cursor.getString(cursor.getColumnIndex(name)));
-                        }else if(type.equalsIgnoreCase("boolean")){
-                            method.invoke(t, cursor.getInt(cursor.getColumnIndex(name)) == 1);
-                        }
-                    }
-                }
-                list.add(t);
-            }while (cursor.moveToNext());
+        if(builder.charAt(builder.length()-1) == ','){
+            builder.deleteCharAt(builder.length()-1);
         }
-        return list;
+        ContentValues values = TableUtil.getValuesFromInstance(instance);
+        sd.update(TableUtil.getTableName(instance.getClass()),values, builder.toString(),selectionArgs);
     }
 
     private static String getFlag(SelectFlag flag){
