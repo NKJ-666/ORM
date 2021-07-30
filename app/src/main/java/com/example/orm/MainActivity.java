@@ -26,11 +26,9 @@ import pl.com.salsoft.sqlitestudioremote.SQLiteStudioService;
 
 public class MainActivity extends AppCompatActivity {
     private MyDaoHelper helper;
-    private Button createDB;
     private Button deleteDB;
     private Button createTable;
     private Button deleteTable;
-    private Button addNewColumn;
     private Button insertValue;
     private Button deleteValue;
     private Button selectValue;
@@ -70,16 +68,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 helper.deleteTable(Result.class);
-            }
-        });
-        addNewColumn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    helper.addNewColumn(Result.class,"id","integer", false,"0");
-                } catch (NoDefaultException e) {
-                    e.printStackTrace();
-                }
             }
         });
         insertValue.setOnClickListener(new View.OnClickListener() {
@@ -145,21 +133,20 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Result result = new Result();
                 result.setCode(200);
-                result.setMessage("test");
-                String [] columnNames = new String[]{"code"};
-                SelectFlag [] flags = new SelectFlag[]{SelectFlag.EQUAL};
-                String [] compareValue = new String[]{"100"};
+                result.setMessage("new");
                 try {
-                    helper.updateFromInstance(result,helper.selectWhere(Result.class,columnNames,flags,compareValue));
+                    helper.updateFromInstance(result);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 } catch (GetMethodException e) {
                     e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
                 } catch (NotEveryHavePointer notEveryHavePointer) {
                     notEveryHavePointer.printStackTrace();
                 } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (CanOnlyOneKeyException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
                     e.printStackTrace();
                 }
             }
@@ -185,11 +172,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void init(){
-        createDB = findViewById(R.id.create_database);
         deleteDB = findViewById(R.id.delete_database);
         createTable = findViewById(R.id.create_table);
         deleteTable = findViewById(R.id.delete_table);
-        addNewColumn = findViewById(R.id.add_new_column);
         insertValue = findViewById(R.id.insert_value);
         deleteValue = findViewById(R.id.delete_value);
         selectValue = findViewById(R.id.select_value);

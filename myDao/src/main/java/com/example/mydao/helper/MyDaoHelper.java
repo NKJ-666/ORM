@@ -2,6 +2,7 @@ package com.example.mydao.helper;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
@@ -44,14 +45,6 @@ public class MyDaoHelper {
         db.execSQL(SQLBuilderUtil.deleteTableFromName(tableName));
     }
 
-    public void addNewColumn(Class<?> clazz, String column, String dataType, boolean nullable, String defaultValue) throws NoDefaultException {
-        db.execSQL(SQLBuilderUtil.addNewColumn(clazz, column, dataType, nullable, defaultValue));
-    }
-
-    public void addNewColumn(Class<?> clazz, String column, String dataType) throws NoDefaultException {
-        db.execSQL(SQLBuilderUtil.addNewColumn(clazz, column, dataType));
-    }
-
     public <T> void insertFromJson(String json,Class<T> clazz) throws IllegalAccessException, GetMethodException, InvocationTargetException {
         SQLBuilderUtil.insertFromJson(json,clazz,this.db);
     }
@@ -77,10 +70,6 @@ public class MyDaoHelper {
         return SQLBuilderUtil.selectWhere(clazz,columnNames,flag,compareValues,db);
     }
 
-    public <T,K> void updateFromInstance(T instance, String[] columnNames, SelectFlag[] flag, K[] compareValues) throws IllegalAccessException, GetMethodException, InvocationTargetException {
-        SQLBuilderUtil.updateFromInstance(instance,columnNames,flag,compareValues,db);
-    }
-
     public String getTableName(Class<?> clazz){
         return TableUtil.getTableName(clazz);
     }
@@ -103,5 +92,10 @@ public class MyDaoHelper {
 
     public <T> List<T> selectWhere(List<T> list){
         return list;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public <T> void updateFromInstance(T instance) throws IllegalAccessException, GetMethodException, NotEveryHavePointer, InstantiationException, CanOnlyOneKeyException, InvocationTargetException {
+        SQLBuilderUtil.updateFromInstance(instance,db);
     }
 }

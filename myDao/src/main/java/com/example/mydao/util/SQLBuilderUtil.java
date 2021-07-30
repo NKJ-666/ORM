@@ -122,16 +122,6 @@ public class SQLBuilderUtil {
         return builder.toString();
     }
 
-    public synchronized static String addNewColumn(Class<?> clazz, String column, String dataType) {
-        String builder = "alter table " +
-                TableUtil.getTableName(clazz) +
-                " add " +
-                column +
-                " " +
-                dataType;
-        return builder;
-    }
-
     public synchronized static <T> void insertFromJson(String json,Class<T> clazz, SQLiteDatabase sd) throws IllegalAccessException, InvocationTargetException, GetMethodException {
         Gson gson = new Gson();
         T t = gson.fromJson(json,clazz);
@@ -217,20 +207,6 @@ public class SQLBuilderUtil {
         return list;
     }
 
-    public synchronized static <T,K> void updateFromInstance(T instance, String[] columnNames, SelectFlag[] flag, K[] compareValues, SQLiteDatabase sd) throws IllegalAccessException, GetMethodException, InvocationTargetException {
-        StringBuilder builder = new StringBuilder();
-        String [] selectionArgs = new String[columnNames.length];
-        for(int i = 0; i < columnNames.length; i++){
-            builder.append(columnNames[i] + " " + getFlag(flag[i]) + " ? ,");
-            selectionArgs[i] = compareValues[i].toString();
-        }
-        if(builder.charAt(builder.length()-1) == ','){
-            builder.deleteCharAt(builder.length()-1);
-        }
-        ContentValues values = TableUtil.getValuesFromInstance(instance);
-        sd.update(TableUtil.getTableName(instance.getClass()),values, builder.toString(),selectionArgs);
-    }
-
     public synchronized static <T> void updateFromInstance(T instance, List<T> list, SQLiteDatabase sd) throws IllegalAccessException, GetMethodException, InvocationTargetException {
         String tableName = TableUtil.getTableName(instance.getClass());
         ContentValues values = TableUtil.getValuesFromInstance(instance);
@@ -257,6 +233,27 @@ public class SQLBuilderUtil {
                 selectionArgs[i] = list1.get(i).toString();
             }
             sd.update(tableName,values,builder.toString(),selectionArgs);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public synchronized static <T> void updateFromInstance(T instance, SQLiteDatabase sd) throws CanOnlyOneKeyException, InvocationTargetException, IllegalAccessException, NotEveryHavePointer, InstantiationException, GetMethodException {
+        Class clazz = instance.getClass();
+        Field[] fields = clazz.getDeclaredFields();
+        Field IDField = TableUtil.getIDField(fields);
+        Method[] methods = clazz.getDeclaredMethods();
+        Object obj = null;
+        for(Method method : methods){
+            String name = method.getName();
+            if(name.startsWith("get") && name.endsWith(IDField.getName().substring(1))){
+                obj = method.invoke(instance);
+                break;
+            }
+        }
+        if(obj != null){
+            String key = obj.toString();
+            ContentValues values = TableUtil.getValuesFromInstance(instance);
+            sd.update(TableUtil.getTableName(clazz),values,IDField.getName() + " = ?",new String[]{key+""});
         }
     }
 
