@@ -7,9 +7,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
 
 import com.example.mydao.bean.Result;
-import com.example.mydao.exception.EmptyFieldException;
-import com.example.mydao.exception.NotMainKeyException;
-import com.example.mydao.util.SQLBuilderUtil;
 
 public class MyDatabaseHelper extends SQLiteOpenHelper {
 

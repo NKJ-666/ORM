@@ -138,33 +138,8 @@ public class TableUtil {
      * @throws InvocationTargetException
      */
     public static <T> List<T> query(Class<T> clazz, String selection, String [] selectionArgs, SQLiteDatabase sd) throws InstantiationException, IllegalAccessException, InvocationTargetException {
-        List<T> list = new ArrayList<>();
-        Cursor cursor = sd.query(TableUtil.getTableName(clazz),null,selection, selectionArgs,null,null,null);
-        if(cursor.moveToFirst()){
-            do{
-                T t = clazz.newInstance();
-                Method[] methods = clazz.getDeclaredMethods();
-                for(Method method : methods){
-                    if(method.getName().startsWith("set")){
-                        Class[] columnTypes = method.getParameterTypes();
-                        String name = method.getName().toLowerCase().substring(3);
-                        if(columnTypes.length > 1)
-                            continue;
-                        String [] totalType = columnTypes[0].toString().split("\\.");
-                        String type = totalType[totalType.length-1];
-                        if(type.equalsIgnoreCase("Integer") || type.equalsIgnoreCase("int")){
-                            method.invoke(t, cursor.getInt(cursor.getColumnIndex(name)));
-                        }else if(type.equalsIgnoreCase("String")){
-                            method.invoke(t, cursor.getString(cursor.getColumnIndex(name)));
-                        }else if(type.equalsIgnoreCase("boolean")){
-                            method.invoke(t, cursor.getInt(cursor.getColumnIndex(name)) == 1);
-                        }
-                    }
-                }
-                list.add(t);
-            }while (cursor.moveToNext());
-        }
-        return list;
+        Cursor cursor = sd.query(TableUtil.getTableName(clazz),null,selection,selectionArgs,null,null,null);
+        return query(cursor,clazz);
     }
 
     public static String [] getAllFieldName(Field [] fields){
@@ -211,5 +186,43 @@ public class TableUtil {
             }
         }
         return false;
+    }
+
+    public static String change(String from, String to){
+        StringBuilder builder = new StringBuilder();
+        builder.append("alter table ")
+                .append(from)
+                .append(" rename to ")
+                .append(to);
+        return builder.toString();
+    }
+
+    public static <T> List<T> query(Cursor cursor, Class<T> clazz) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        List<T> list = new ArrayList<>();
+        if(cursor.moveToFirst()){
+            do{
+                T t = clazz.newInstance();
+                Method[] methods = clazz.getDeclaredMethods();
+                for(Method method : methods){
+                    if(method.getName().startsWith("set")){
+                        Class[] columnTypes = method.getParameterTypes();
+                        String name = method.getName().toLowerCase().substring(3);
+                        if(columnTypes.length > 1)
+                            continue;
+                        String [] totalType = columnTypes[0].toString().split("\\.");
+                        String type = totalType[totalType.length-1];
+                        if(type.equalsIgnoreCase("Integer") || type.equalsIgnoreCase("int")){
+                            method.invoke(t, cursor.getInt(cursor.getColumnIndex(name)));
+                        }else if(type.equalsIgnoreCase("String")){
+                            method.invoke(t, cursor.getString(cursor.getColumnIndex(name)));
+                        }else if(type.equalsIgnoreCase("boolean")){
+                            method.invoke(t, cursor.getInt(cursor.getColumnIndex(name)) == 1);
+                        }
+                    }
+                }
+                list.add(t);
+            }while (cursor.moveToNext());
+        }
+        return list;
     }
 }

@@ -32,12 +32,6 @@
         android:text="delete table"/>
 
     <Button
-        android:id="@+id/change_table_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="change table name"/>
-
-    <Button
         android:id="@+id/add_new_column"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -66,5 +60,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="update value"/>
+
+    <Button
+        android:id="@+id/update_table"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="update table"/>
 
 </LinearLayout>

@@ -13,6 +13,7 @@ import com.example.mydao.exception.NoDefaultException;
 import com.example.mydao.exception.NotEveryHavePointer;
 import com.example.mydao.exception.NotMainKeyException;
 import com.example.mydao.exception.TableHasExisted;
+import com.example.mydao.exception.newColumnMustCanBeNull;
 import com.example.mydao.myenum.SelectFlag;
 import com.example.mydao.util.SQLBuilderUtil;
 import com.example.mydao.util.TableUtil;
@@ -41,10 +42,6 @@ public class MyDaoHelper {
 
     public void deleteTableFromName(String tableName){
         db.execSQL(SQLBuilderUtil.deleteTableFromName(tableName));
-    }
-
-    public void changeTableName(String from, String to){
-        db.execSQL(SQLBuilderUtil.changeTableName(from,to));
     }
 
     public void addNewColumn(Class<?> clazz, String column, String dataType, boolean nullable, String defaultValue) throws NoDefaultException {
@@ -86,5 +83,25 @@ public class MyDaoHelper {
 
     public String getTableName(Class<?> clazz){
         return TableUtil.getTableName(clazz);
+    }
+
+    public void updateTable(Class<?> clazz) throws NoDefaultException, newColumnMustCanBeNull, EmptyFieldException, NotMainKeyException, CanOnlyOneKeyException {
+        SQLBuilderUtil.updateTable(clazz,db);
+    }
+
+    public <T> void updateFromInstance(T instance, List<T> list) throws IllegalAccessException, GetMethodException, InvocationTargetException {
+        SQLBuilderUtil.updateFromInstance(instance,list,db);
+    }
+
+    public <T,K> List<T> and(Class<T> clazz, String[] columnNames, SelectFlag[] flag, K[] compareValues) throws InvocationTargetException, InstantiationException, NotEveryHavePointer, IllegalAccessException {
+        return SQLBuilderUtil.and(clazz,columnNames,flag,compareValues,db);
+    }
+
+    public <T,K> List<T> or(Class<T> clazz, String[] columnNames, SelectFlag[] flags, K[] compareValues) throws InvocationTargetException, InstantiationException, NotEveryHavePointer, IllegalAccessException {
+        return SQLBuilderUtil.or(clazz,columnNames,flags,compareValues,db);
+    }
+
+    public <T> List<T> selectWhere(List<T> list){
+        return list;
     }
 }

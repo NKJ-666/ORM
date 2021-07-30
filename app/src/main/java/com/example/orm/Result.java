@@ -1,4 +1,4 @@
-package com.example.mydao.bean;
+package com.example.orm;
 
 
 import com.example.mydao.annotation.Key;
@@ -16,6 +16,10 @@ public class Result {
     @Default(stringDef = "test")
     private String message;
 
+    @Nullable
+    @Default(stringDef = "test1")
+    private String test;
+
     public Integer getCode() {
         return code;
     }
@@ -30,5 +34,13 @@ public class Result {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getTest() {
+        return test;
+    }
+
+    public void setTest(String test) {
+        this.test = test;
     }
 }
