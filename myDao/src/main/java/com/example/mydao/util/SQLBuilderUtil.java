@@ -337,7 +337,7 @@ public class SQLBuilderUtil {
             }
             builder.append(" from temporaryTable");
             sd.execSQL(builder.toString());
-            deleteTableFromName("temporaryTable");
+            sd.execSQL(deleteTableFromName("temporaryTable"));
         }
     }
 
